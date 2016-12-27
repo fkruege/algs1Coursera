@@ -14,6 +14,11 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+//    compile name 'algs4'
+//    compile fileTree(dir: '/libs', include: '*.jar')
+
+    compile files('src/libs/algs4.jar')
+
 
 
 }
