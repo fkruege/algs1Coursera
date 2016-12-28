@@ -5,8 +5,8 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
  */
 public class Percolation {
 
-    public static final String ROW = "Row";
-    public static final String COLUMN = "Column";
+    private static final String ROW = "Row";
+    private static final String COLUMN = "Column";
     private int _gridSize;
     private int _virtualTop;
     private int _virtualBottom;
