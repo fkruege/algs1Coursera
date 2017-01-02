@@ -21,6 +21,7 @@
 .gradle/
 build/
 bin/
+classes/
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
