@@ -62,7 +62,20 @@ public class PointTest {
 
         int compareEqual = pointComparator.compare(_pt_0_0, _pt_0_0);
         assertEquals(0, compareEqual);
-
     }
+//
+//    @Test
+//    public void slopeOrderTest2(){
+//        Point a = new Point(0, 0);
+//        Point b = new Point(1, 1);
+//        Point c = new Point(2, 2);
+//
+//        Comparator<Point> pointComparator = b.slopeOrder();
+//        pointComparator
+//
+//
+//    }
+
+
 
 }

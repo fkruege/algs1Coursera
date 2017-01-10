@@ -17,9 +17,9 @@ public class Point implements Comparable<Point> {
 
     private final int x;     // x-coordinate of this point
     private final int y;     // y-coordinate of this point
-    private final double SLOPE_HORIZONTAL_LINE = +0.0;
-    private final double SLOPE_VERTICAL_LINE = Double.POSITIVE_INFINITY;
-    private final double SLOPE_SAME_POINT = Double.NEGATIVE_INFINITY;
+    public static final double SLOPE_HORIZONTAL_LINE = +0.0;
+    public static final double SLOPE_VERTICAL_LINE = Double.POSITIVE_INFINITY;
+    public static final double SLOPE_SAME_POINT = Double.NEGATIVE_INFINITY;
 
     /**
      * Initializes a new point.
@@ -80,7 +80,7 @@ public class Point implements Comparable<Point> {
             return SLOPE_VERTICAL_LINE;
         }
 
-        return deltaX / deltaY;
+        return (double)deltaX/(double)deltaY;
 
     }
 
