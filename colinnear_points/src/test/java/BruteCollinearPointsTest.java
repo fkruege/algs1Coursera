@@ -102,4 +102,61 @@ public class BruteCollinearPointsTest {
     }
 
 
+    @Test
+    public void test_findColinnearPoints4() {
+        Point p = new Point(1, 1);
+        Point q = new Point(2, 2);
+        Point r = new Point(3, 3);
+        Point s = new Point(4, 4);
+
+        Point t = new Point(3, 1);
+        Point u = new Point(1, 3);
+        Point v = new Point(0, 4);
+
+
+        Point[] points = new Point[7];
+        points[0] = p;
+        points[1] = q;
+        points[2] = r;
+        points[3] = s;
+        points[4] = t;
+        points[5] = u;
+        points[6] = v;
+
+        BruteCollinearPoints brutePoints = new BruteCollinearPoints(points);
+        assertEquals(2, brutePoints.numberOfSegments());
+
+        LineSegment[] segments = brutePoints.segments();
+        assertEquals(2, segments.length);
+        assertEquals("(1, 1)" + " -> " + "(4, 4)", segments[0].toString());
+        assertEquals("(3, 1)" + " -> " + "(0, 4)", segments[1].toString());
+    }
+
+
+
+
+    @Test
+    public void test_findColinnearPoints5() {
+        Point p = new Point(1, 1);
+        Point q = new Point(2, 2);
+        Point r = new Point(3, 3);
+        Point t = new Point(3, 1);
+        Point u = new Point(1, 3);
+
+
+        Point[] points = new Point[5];
+        int index = 0;
+        points[index++] = p;
+        points[index++] = q;
+        points[index++] = r;
+        points[index++] = t;
+        points[index++] = u;
+
+        BruteCollinearPoints brutePoints = new BruteCollinearPoints(points);
+        assertEquals(0, brutePoints.numberOfSegments());
+
+        LineSegment[] segments = brutePoints.segments();
+        assertEquals(0, segments.length);
+    }
+
 }

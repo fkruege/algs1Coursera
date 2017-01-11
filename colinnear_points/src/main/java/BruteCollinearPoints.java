@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  * Created by fkruege on 1/10/2017.
  */
@@ -16,7 +18,7 @@ public class BruteCollinearPoints {
         _segments = new LineSegment[SEGMENT_SIZE];
         _segmentIndex = 0;
 
-        findCollinearPoints();
+        findColinnearPoints2();
     }
 
 
@@ -28,55 +30,44 @@ public class BruteCollinearPoints {
     // the line segments
     public LineSegment[] segments() {
         LineSegment[] copySegments = new LineSegment[_segmentIndex];
-        for(int i = 0; i < _segmentIndex; i++){
+        for (int i = 0; i < _segmentIndex; i++) {
             copySegments[i] = _segments[i];
         }
         return copySegments;
     }
 
-    private void findCollinearPoints() {
+    private void findColinnearPoints2() {
 
-        for (int i = 0; i < _points.length - 3; i++) {
+        Arrays.sort(_points );
 
-            Point p = _points[i];
-            Point q = _points[i + 1];
-            Point r = _points[i + 2];
-            Point s = _points[i + 3];
+        for (int i = 0; i < _points.length; i++) {
+            boolean segmentFound = false;
+            for (int j = i + 1; j < _points.length && !segmentFound; j++) {
+                Point p = _points[i];
+                Point q = _points[j];
+                double p_q_slope = p.slopeTo(q);
+                for (int k = j + 1; k < _points.length && !segmentFound; k++) {
+                    Point r = _points[k];
+                    double p_r_slope = p.slopeTo(r);
 
-            double p_q_slope = p.slopeTo(q);
-            if (p_q_slope == Point.SLOPE_SAME_POINT) {
-                continue;
+                    if (Double.compare(p_q_slope, p_r_slope) == 0) {
+
+                        for (int l = k + 1; l < _points.length && !segmentFound; l++) {
+                            Point s = _points[l];
+                            double p_s_slope = p.slopeTo(s);
+
+                            if (Double.compare(p_r_slope, p_s_slope) == 0) {
+                                _segments[_segmentIndex++] = new LineSegment(p, s);
+                                segmentFound = true;
+                            }
+                        }
+                    }
+                }
             }
-
-            double p_r_slope = p.slopeTo(r);
-            if (p_r_slope == Point.SLOPE_SAME_POINT) {
-                continue;
-            }
-
-            // verify the p->q and p->r have the same slope
-            if (Double.compare(p_q_slope, p_r_slope) != 0) {
-                continue;
-            }
-
-            double p_s_slope = p.slopeTo(s);
-            if (p_s_slope == Point.SLOPE_SAME_POINT) {
-                continue;
-            }
-
-            if (Double.compare(p_q_slope, p_s_slope) != 0) {
-                continue;
-            }
-
-            // if we get here then these 4 points are colinnear
-            if (_segmentIndex < SEGMENT_SIZE) {
-                _segments[_segmentIndex++] = new LineSegment(p, s);
-            }
-
-
         }
 
-
     }
+
 
     private void verifyPointsArray(Point[] points) {
         if (points == null) {
