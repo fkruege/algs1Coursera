@@ -13,7 +13,19 @@ public class FastCollinearPoints {
     public FastCollinearPoints(Point[] points) {
         _segments = new NodeList<LineSegment>();
 
-        findCollinearPoints(points);
+        Point[] copyPoints = copyPoints(points);
+
+        findCollinearPoints(copyPoints);
+    }
+
+    private Point[] copyPoints(Point[] points){
+        Point[] pointsCopy = new Point[points.length];
+
+        for (int i = 0; i < points.length; i++) {
+            pointsCopy[i] = points[i];
+        }
+
+        return pointsCopy;
     }
 
     // the number of line segments
@@ -31,11 +43,8 @@ public class FastCollinearPoints {
     private void findCollinearPoints(Point[] points) {
 
         Arrays.sort(points);
-        Point[] pointsCopy = new Point[points.length];
+        Point[] pointsCopy = copyPoints(points);
 
-        for (int i = 0; i < points.length; i++) {
-            pointsCopy[i] = points[i];
-        }
 
         for (int i = 0; i < points.length; i++) {
             Point p = points[i];
@@ -46,14 +55,20 @@ public class FastCollinearPoints {
             int matches = 0;
             double currentMatch = Double.NEGATIVE_INFINITY;
             Point endPoint = null;
+            double oldSlope = Double.NEGATIVE_INFINITY;
             for (int j = 1; j < pointsCopy.length; j++) {
                 Point q = pointsCopy[j];
 
                 // if q is less than p skip it in order to avoid double recording points
                 if (q.compareTo(p) <= 0) {
+                    oldSlope = p.slopeTo(q);
                     continue;
                 }
                 double slope = p.slopeTo(q);
+                if(Double.compare(oldSlope, slope) == 0){
+                    continue;
+                }
+
                 if (Double.compare(currentMatch, slope) == 0) {
                     matches++;
                     if (q.compareTo(endPoint) == 1) {
@@ -79,46 +94,6 @@ public class FastCollinearPoints {
         }
 
     }
-//
-//    private void findCollinearPoints2(Point[] points) {
-//
-//
-//        for (int i = 0; i < points.length; i++) {
-//            Arrays.sort(points);
-//            Point p = points[i];
-//
-//            if (i + MIN_ADJACENT_POINTS >= points.length) {
-//                break;
-//            }
-//
-//            // sort the elements to the right of p by slope in relation to point p
-//            Arrays.sort(points, i + 1, points.length , p.slopeOrder());
-//
-//            int matches = 0;
-//            double currentMatch = Double.NEGATIVE_INFINITY;
-//            Point endPoint = null;
-//            for (int j = i + 1; j < points.length; j++) {
-//                Point q = points[j];
-//                double slope = p.slopeTo(q);
-//                if (Double.compare(currentMatch, slope) == 0) {
-//                    matches++;
-//                    endPoint = q;
-//                } else {
-//                    if (matches >= MIN_ADJACENT_POINTS) {
-//                        break;
-//                    }
-//                    currentMatch = slope;
-//                    matches = 1;
-//                }
-//            }
-//
-//            if (matches >= MIN_ADJACENT_POINTS) {
-//                _segments[_segmentIndex++] = new LineSegment(p, endPoint);
-//            }
-//
-//        }
-//
-//    }
 
     private static class Node<T> {
         public T Value;

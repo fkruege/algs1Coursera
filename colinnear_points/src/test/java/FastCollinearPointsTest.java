@@ -192,4 +192,35 @@ public class FastCollinearPointsTest {
         assertEquals("(0, 0)" + " -> " + "(0, 3)", segments[1].toString());
     }
 
+
+
+    @Test
+    public void test_findColinnearPoints7() {
+        Point p = new Point(0, 0);
+        Point q = new Point(1, 1);
+        Point r = new Point(3, 3);
+        Point s = new Point(5, 5);
+        Point t = new Point(6, 6);
+        Point u = new Point(9, 9);
+
+
+        Point[] points = new Point[6];
+        int index = 0;
+        points[index++] = p;
+        points[index++] = q;
+        points[index++] = r;
+        points[index++] = s;
+        points[index++] = t;
+        points[index++] = u;
+
+
+        FastCollinearPoints fastCollinearPoints = new FastCollinearPoints(points);
+        LineSegment[] segments = fastCollinearPoints.segments();
+        assertEquals(1, segments.length);
+
+        assertEquals(1, fastCollinearPoints.numberOfSegments());
+
+        assertEquals("(0, 0)" + " -> " + "(9, 9)", segments[0].toString());
+    }
+
 }
