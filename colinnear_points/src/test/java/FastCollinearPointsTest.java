@@ -25,10 +25,11 @@ public class FastCollinearPointsTest {
 
         FastCollinearPoints fastPoints = new FastCollinearPoints(points);
 
-        assertEquals(1, fastPoints.numberOfSegments());
-
         LineSegment[] segments = fastPoints.segments();
         assertEquals(1, segments.length);
+
+        assertEquals(1, fastPoints.numberOfSegments());
+
         String pToString = "(0, 0)";
         String sToString = "(3, 3)";
         String expectedLineSegment = pToString + " -> " + sToString;
@@ -61,9 +62,9 @@ public class FastCollinearPointsTest {
         points[7] = w;
 
         FastCollinearPoints fastPoints = new FastCollinearPoints(points);
-        assertEquals(2, fastPoints.numberOfSegments());
 
         LineSegment[] segments = fastPoints.segments();
+        assertEquals(2, fastPoints.numberOfSegments());
         assertEquals(2, segments.length);
         assertEquals("(0, 0)" + " -> " + "(3, 3)", segments[0].toString());
         assertEquals("(0, 1)" + " -> " + "(3, 4)", segments[1].toString());
@@ -222,5 +223,33 @@ public class FastCollinearPointsTest {
 
         assertEquals("(0, 0)" + " -> " + "(9, 9)", segments[0].toString());
     }
+
+     @Test
+    public void test_findColinnearPoints8() {
+        Point p = new Point(5000, 0);
+        Point q = new Point(10000, 3100);
+        Point r = new Point(15000, 6200);
+        Point s = new Point(20000, 9300);
+        Point t = new Point(25000, 12400);
+
+
+        Point[] points = new Point[5];
+        int index = 0;
+        points[index++] = p;
+        points[index++] = q;
+        points[index++] = r;
+        points[index++] = s;
+        points[index++] = t;
+
+
+        FastCollinearPoints fastCollinearPoints = new FastCollinearPoints(points);
+        LineSegment[] segments = fastCollinearPoints.segments();
+        assertEquals(1, segments.length);
+
+        assertEquals(1, fastCollinearPoints.numberOfSegments());
+
+        assertEquals("(5000, 0)" + " -> " + "(25000, 12400)", segments[0].toString());
+    }
+
 
 }

@@ -18,7 +18,7 @@ public class FastCollinearPoints {
         findCollinearPoints(copyPoints);
     }
 
-    private Point[] copyPoints(Point[] points){
+    private Point[] copyPoints(Point[] points) {
         Point[] pointsCopy = new Point[points.length];
 
         for (int i = 0; i < points.length; i++) {
@@ -43,11 +43,15 @@ public class FastCollinearPoints {
     private void findCollinearPoints(Point[] points) {
 
         Arrays.sort(points);
-        Point[] pointsCopy = copyPoints(points);
+//        Point[] pointsCopy = copyPoints(points);
 
 
         for (int i = 0; i < points.length; i++) {
             Point p = points[i];
+
+            // copy the points to preserve the natural order.
+            // If I don't do this it becomes harder to determine duplicate segments
+            Point[] pointsCopy = copyPoints(points);
 
             // sort all the points by slope in relation to point p
             Arrays.sort(pointsCopy, p.slopeOrder());
@@ -56,20 +60,17 @@ public class FastCollinearPoints {
             double currentMatch = Double.NEGATIVE_INFINITY;
             Point endPoint = null;
             double oldSlope = Double.NEGATIVE_INFINITY;
+            double slope = Double.NEGATIVE_INFINITY;
             for (int j = 1; j < pointsCopy.length; j++) {
                 Point q = pointsCopy[j];
 
-                // if q is less than p skip it in order to avoid double recording points
                 if (q.compareTo(p) <= 0) {
                     oldSlope = p.slopeTo(q);
-                    continue;
-                }
-                double slope = p.slopeTo(q);
-                if(Double.compare(oldSlope, slope) == 0){
-                    continue;
                 }
 
-                if (Double.compare(currentMatch, slope) == 0) {
+                slope = p.slopeTo(q);
+
+                if (Double.compare(currentMatch, slope) == 0 && Double.compare(oldSlope, slope) != 0) {
                     matches++;
                     if (q.compareTo(endPoint) == 1) {
                         endPoint = q;
@@ -79,15 +80,18 @@ public class FastCollinearPoints {
                     // meets the minimum criteria
                     if (matches >= MIN_ADJACENT_POINTS) {
                         _segments.add(new LineSegment(p, endPoint));
+                        oldSlope = Double.NEGATIVE_INFINITY;
                     }
                     currentMatch = slope;
                     matches = 1;
                     endPoint = q;
+
                 }
             }
 
             if (matches >= MIN_ADJACENT_POINTS) {
                 _segments.add(new LineSegment(p, endPoint));
+                oldSlope = Double.NEGATIVE_INFINITY;
             }
 
 
