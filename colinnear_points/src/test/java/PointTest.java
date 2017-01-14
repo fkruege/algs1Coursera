@@ -15,11 +15,18 @@ public class PointTest {
     Point _pt_5_0;
     Point _pt_5_5;
 
+    Point _pt_3_5;
+    Point _pt_8_9;
+
     @Before
-    public void before(){
+    public void before() {
         _pt_0_0 = new Point(0, 0);
         _pt_5_0 = new Point(5, 0);
         _pt_5_5 = new Point(5, 5);
+
+        _pt_3_5 = new Point(3, 5);
+        _pt_8_9 = new Point(8, 9);
+
 
     }
 
@@ -36,23 +43,25 @@ public class PointTest {
         assertEquals(Double.NEGATIVE_INFINITY, _pt_5_5.slopeTo(_pt_5_5), 0);
 
         assertEquals(1, _pt_0_0.slopeTo(_pt_5_5), 0);
+
+        assertEquals(0, Double.compare(0.8, _pt_3_5.slopeTo(_pt_8_9)));
     }
 
     @Test
-    public void compareTo_Test(){
+    public void compareTo_Test() {
         // test same point
         assertEquals(0, _pt_0_0.compareTo(_pt_0_0));
 
         // test point is less than
-        assertEquals(-1,_pt_0_0.compareTo(_pt_5_5) );
-        assertEquals(-1,_pt_0_0.compareTo(_pt_5_0) );
+        assertEquals(-1, _pt_0_0.compareTo(_pt_5_5));
+        assertEquals(-1, _pt_0_0.compareTo(_pt_5_0));
 
         // test point is greater than
-        assertEquals(1,_pt_5_5.compareTo(_pt_0_0) );
+        assertEquals(1, _pt_5_5.compareTo(_pt_0_0));
     }
 
     @Test
-    public void slopeOrderTest(){
+    public void slopeOrderTest() {
         Comparator<Point> pointComparator = _pt_0_0.slopeOrder();
         int compareLessThan = pointComparator.compare(_pt_5_0, _pt_5_5);
         assertEquals(-1, compareLessThan);
@@ -75,7 +84,6 @@ public class PointTest {
 //
 //
 //    }
-
 
 
 }

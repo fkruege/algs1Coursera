@@ -46,7 +46,7 @@ public class BruteCollinearPoints {
                 Point p = _points[i];
                 Point q = _points[j];
                 double p_q_slope = p.slopeTo(q);
-                for (int k = j + 1; k < _points.length && !segmentFound; k++) {
+                for (int k = j + 1; k < _points.length ; k++) {
                     Point r = _points[k];
                     double p_r_slope = p.slopeTo(r);
 
@@ -58,7 +58,6 @@ public class BruteCollinearPoints {
 
                             if (Double.compare(p_r_slope, p_s_slope) == 0) {
                                 _segments[_segmentIndex++] = new LineSegment(p, s);
-                                segmentFound = true;
                             }
                         }
                     }

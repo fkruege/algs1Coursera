@@ -9,17 +9,15 @@
  ******************************************************************************/
 
 import java.util.Comparator;
-
 import edu.princeton.cs.algs4.StdDraw;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Point implements Comparable<Point> {
 
     private final int x;     // x-coordinate of this point
     private final int y;     // y-coordinate of this point
-    public static final double SLOPE_HORIZONTAL_LINE = +0.0;
-    public static final double SLOPE_VERTICAL_LINE = Double.POSITIVE_INFINITY;
-    public static final double SLOPE_SAME_POINT = Double.NEGATIVE_INFINITY;
+    private static final double SLOPE_HORIZONTAL_LINE = +0.0;
+    private static final double SLOPE_VERTICAL_LINE = Double.POSITIVE_INFINITY;
+    private static final double SLOPE_SAME_POINT = Double.NEGATIVE_INFINITY;
 
     /**
      * Initializes a new point.
@@ -65,6 +63,9 @@ public class Point implements Comparable<Point> {
      */
     public double slopeTo(Point that) {
         /* YOUR CODE HERE */
+        if(that == null){
+            throw new NullPointerException();
+        }
 
         int deltaY = that.y - this.y;
         int deltaX = that.x - this.x;
@@ -80,7 +81,7 @@ public class Point implements Comparable<Point> {
             return SLOPE_VERTICAL_LINE;
         }
 
-        return (double)deltaX/(double)deltaY;
+        return (double)deltaY/(double)deltaX;
 
     }
 
@@ -99,6 +100,9 @@ public class Point implements Comparable<Point> {
     public int compareTo(Point that) {
         /* YOUR CODE HERE */
 
+        if(that == null){
+            throw new NullPointerException();
+        }
 
         double slope = this.slopeTo(that);
         if (slope == Double.NEGATIVE_INFINITY) {

@@ -159,4 +159,40 @@ public class BruteCollinearPointsTest {
         assertEquals(0, segments.length);
     }
 
+
+
+    @Test
+    public void test_findColinnearPoints6() {
+        Point p = new Point(0, 0);
+        Point q = new Point(1, 0);
+        Point r = new Point(2, 0);
+        Point s = new Point(3, 0);
+
+        Point t = new Point(0, 1);
+        Point u = new Point(0, 2);
+        Point v = new Point(0, 3);
+
+
+        Point[] points = new Point[7];
+        int index = 0;
+        points[index++] = p;
+        points[index++] = q;
+        points[index++] = r;
+        points[index++] = s;
+        points[index++] = t;
+        points[index++] = u;
+        points[index++] = v;
+
+
+        BruteCollinearPoints collinearPoints = new BruteCollinearPoints(points);
+        LineSegment[] segments = collinearPoints.segments();
+        assertEquals(2, segments.length);
+
+        assertEquals(2, collinearPoints.numberOfSegments());
+
+
+        assertEquals("(0, 0)" + " -> " + "(3, 0)", segments[0].toString());
+        assertEquals("(0, 0)" + " -> " + "(0, 3)", segments[1].toString());
+    }
+
 }
