@@ -1,9 +1,5 @@
 import edu.princeton.cs.algs4.Stack;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * Created by fkruege on 1/16/2017.
  */

@@ -1,4 +1,5 @@
 import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.Stack;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Comparator;
@@ -8,12 +9,12 @@ import java.util.Comparator;
  */
 public class Solver {
     private Board _initialBoard;
-    private MinPQ<SearchNode> _minPQ;
+    private SearchNode _solutionNode;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         _initialBoard = initial;
-        _minPQ = new MinPQ<SearchNode>(new ManhattanSearchNodeComparator());
+        _solutionNode = null;
     }
 
     // is the initial board solvable?
@@ -28,30 +29,70 @@ public class Solver {
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        throw new NotImplementedException();
+
+        solveProblem();
+
+        if (_solutionNode == null) {
+            return null;
+        }
+
+        // iterate through the SearchNode history and return the steps to get to the solution
+        Stack<Board> stepsToSolution = new Stack<Board>();
+        SearchNode iterator = _solutionNode;
+        while (iterator != null) {
+            stepsToSolution.push(iterator.PuzzleBoard);
+            iterator = iterator.PreviousSearchNode;
+        }
+
+        return stepsToSolution;
+    }
+
+    private void solveProblem() {
+
+        MinPQ<SearchNode> _minPQ = new MinPQ<SearchNode>(new ManhattanSearchNodeComparator());
+
+        // insert the current board first
+        SearchNode firstNode = new SearchNode(_initialBoard, 0, null);
+        _minPQ.insert(firstNode);
+
+        boolean isSolved = false;
+
+        while (!isSolved && !_minPQ.isEmpty()) {
+
+            SearchNode minNode = _minPQ.delMin();
+            if (isBoardSolved(minNode.PuzzleBoard)) {
+                _solutionNode = minNode;
+                isSolved = true;
+                continue;
+            }
+            Iterable<Board> neighbors = minNode.PuzzleBoard.neighbors();
+            for (Board neighbor : neighbors) {
+                SearchNode possibleStep = new SearchNode(neighbor, minNode.Moves + 1, minNode);
+                _minPQ.insert(possibleStep);
+            }
+        }
+    }
+
+    private boolean isBoardSolved(Board board) {
+        return board.hamming() == 0;
     }
 
 
+    private static class SearchNode {
 
-    // solve a slider puzzle (given below)
-    public static void main(String[] args) {
-    }
+        Board PuzzleBoard = null;
+        int Moves = 0;
+        SearchNode PreviousSearchNode = null;
 
-    private static class SearchNode{
-
-       Board PuzzleBoard = null;
-       int Moves = 0;
-       SearchNode PreviousSearchNode = null;
-
-       public SearchNode(Board board, int moves, SearchNode previousNode){
-           PuzzleBoard = board;
-           Moves = moves;
-           PreviousSearchNode = previousNode;
-       }
+        public SearchNode(Board board, int moves, SearchNode previousNode) {
+            PuzzleBoard = board;
+            Moves = moves;
+            PreviousSearchNode = previousNode;
+        }
 
     }
 
-    private static class ManhattanSearchNodeComparator implements Comparator<SearchNode>{
+    private static class ManhattanSearchNodeComparator implements Comparator<SearchNode> {
 
         public int compare(SearchNode node1, SearchNode node2) {
             int priority1 = node1.PuzzleBoard.manhattan() + node1.Moves;
@@ -61,4 +102,10 @@ public class Solver {
         }
 
     }
+
+
+    // solve a slider puzzle (given below)
+    public static void main(String[] args) {
+    }
+
 }
