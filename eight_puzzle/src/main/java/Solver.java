@@ -2,6 +2,7 @@ import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Stack;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.io.Console;
 import java.util.Comparator;
 
 /**
@@ -69,6 +70,7 @@ public class Solver {
             for (Board neighbor : neighbors) {
                 SearchNode possibleStep = new SearchNode(neighbor, minNode.Moves + 1, minNode);
                 _minPQ.insert(possibleStep);
+                System.out.println(neighbor.toString());
             }
         }
     }
