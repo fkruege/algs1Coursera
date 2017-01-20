@@ -1,3 +1,4 @@
+import edu.princeton.cs.algs4.LinearProbingHashST;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Stack;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -20,12 +21,26 @@ public class Solver {
 
     // is the initial board solvable?
     public boolean isSolvable() {
-        throw new NotImplementedException();
+        Board twin = _initialBoard.twin();
+
+        SolveBoard solveInitialBoard = new SolveBoard(_initialBoard);
+        SolveBoard solveTwinBoard = new SolveBoard(twin);
+
+        while (!solveInitialBoard.IsBoardSolved() && !solveTwinBoard.IsBoardSolved()) {
+            solveInitialBoard.makeAMove();
+            solveTwinBoard.makeAMove();
+        }
+
+        return solveInitialBoard.IsBoardSolved();
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        throw new NotImplementedException();
+        if (_solutionNode == null) {
+            solveProblem();
+        }
+
+        return _solutionNode.Moves;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
@@ -50,33 +65,89 @@ public class Solver {
 
     private void solveProblem() {
 
-        MinPQ<SearchNode> _minPQ = new MinPQ<SearchNode>(new ManhattanSearchNodeComparator());
-
-        // insert the current board first
-        SearchNode firstNode = new SearchNode(_initialBoard, 0, null);
-        _minPQ.insert(firstNode);
-
-        boolean isSolved = false;
-
-        while (!isSolved && !_minPQ.isEmpty()) {
-
-            SearchNode minNode = _minPQ.delMin();
-            if (isBoardSolved(minNode.PuzzleBoard)) {
-                _solutionNode = minNode;
-                isSolved = true;
-                continue;
-            }
-            Iterable<Board> neighbors = minNode.PuzzleBoard.neighbors();
-            for (Board neighbor : neighbors) {
-                SearchNode possibleStep = new SearchNode(neighbor, minNode.Moves + 1, minNode);
-                _minPQ.insert(possibleStep);
-                System.out.println(neighbor.toString());
-            }
+        SolveBoard solveBoard = new SolveBoard(_initialBoard);
+        while (!solveBoard.IsBoardSolved()) {
+            solveBoard.makeAMove();
         }
+
+        _solutionNode = solveBoard.SolutionNode();
+
     }
 
-    private boolean isBoardSolved(Board board) {
-        return board.hamming() == 0;
+
+    private static class SolveBoard {
+
+        private boolean _isSolved = false;
+        private SearchNode _SolutionNode = null;
+        private Board _board;
+
+        public SolveBoard(Board board) {
+            _board = board;
+        }
+
+        public boolean IsBoardSolved() {
+            return _isSolved;
+        }
+
+        public SearchNode SolutionNode() {
+            return _SolutionNode;
+        }
+
+        public void makeAMove() {
+
+            MinPQ<SearchNode> minPQ = new MinPQ<SearchNode>(new ManhattanSearchNodeComparator());
+
+            // insert the current board first
+            SearchNode firstNode = new SearchNode(_board, 0, null);
+            minPQ.insert(firstNode);
+
+            while (!_isSolved && !minPQ.isEmpty()) {
+
+                SearchNode minNode = minPQ.delMin();
+
+                int priority = minNode.Moves + minNode.PuzzleBoard.manhattan();
+//                System.out.println("Min Node Dequeued.  Priority: " + priority + "    Manhattan: " + minNode.PuzzleBoard.manhattan() + "  Hamming:" + minNode.PuzzleBoard.hamming());
+//                System.out.println(minNode.PuzzleBoard.toString());
+
+                if (minNode.PuzzleBoard.isGoal()) {
+                    _SolutionNode = minNode;
+                    _isSolved = true;
+                    continue;
+                }
+                Iterable<Board> neighbors = minNode.PuzzleBoard.neighbors();
+                int index = 0;
+                for (Board neighbor : neighbors) {
+                    index++;
+//                    System.out.println("Inserting Neighbor " + index + ":   Manhattan: " + neighbor.manhattan() + "  Hamming:" + neighbor.hamming());
+//                    System.out.println(neighbor.toString());
+
+                    if (!IsBoardSameAsPrevious(neighbor, minNode.PreviousSearchNode)) {
+
+                        SearchNode possibleStep = new SearchNode(neighbor, minNode.Moves + 1, minNode);
+                        minPQ.insert(possibleStep);
+                    }
+
+                }
+            }
+        }
+
+
+        private boolean IsBoardSameAsPrevious(Board current, SearchNode previous) {
+            SearchNode iterator = previous;
+            while (iterator != null) {
+                if (iterator.PuzzleBoard == null) {
+                    return false;
+                }
+                if (iterator.PuzzleBoard.equals(current)) {
+                    return true;
+                }
+                iterator = iterator.PreviousSearchNode;
+            }
+
+            return false;
+
+        }
+
     }
 
 
@@ -97,10 +168,43 @@ public class Solver {
     private static class ManhattanSearchNodeComparator implements Comparator<SearchNode> {
 
         public int compare(SearchNode node1, SearchNode node2) {
-            int priority1 = node1.PuzzleBoard.manhattan() + node1.Moves;
-            int priority2 = node2.PuzzleBoard.manhattan() + node2.Moves;
+            int manhattan1 = node1.PuzzleBoard.manhattan();
+            int manhattan2 = node2.PuzzleBoard.manhattan();
 
-            return Integer.compare(priority1, priority2);
+
+            int priority1 = manhattan1 + node1.Moves;
+            int priority2 = manhattan2 + node2.Moves;
+
+            if (priority1 > priority2) {
+                return 1;
+            } else if (priority1 < priority2) {
+                return -1;
+            }
+
+            if(manhattan1 > manhattan2){
+                return 1;
+            }else if(manhattan1 < manhattan2){
+                return -1;
+            }
+
+            int hamming1 = node1.PuzzleBoard.hamming();
+            int hamming2 = node2.PuzzleBoard.hamming();
+
+            if(hamming1 > hamming2){
+                return 1;
+            }else if(hamming1 < hamming2){
+                return -1;
+            }
+
+            return 0;
+//
+//            int compare = Integer.compare(priority1, priority2);
+//
+//            if (compare == 0) {
+//                return Integer.compare(node1.PuzzleBoard.manhattan(), node2.PuzzleBoard.manhattan());
+//            } else {
+//                return compare;
+//            }
         }
 
     }

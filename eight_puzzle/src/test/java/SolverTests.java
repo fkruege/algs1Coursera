@@ -9,9 +9,6 @@ import java.util.Iterator;
  */
 public class SolverTests {
 
-    Board _board;
-
-
     @Before
     public void before() {
 
@@ -40,6 +37,7 @@ public class SolverTests {
             numberOfBoards++;
         }
         Assert.assertEquals(1, numberOfBoards);
+        Assert.assertEquals(0, solver.moves());
     }
 
 
@@ -68,6 +66,7 @@ public class SolverTests {
         }
 
         Assert.assertEquals(2, numberOfBoards);
+        Assert.assertEquals(1, solver.moves());
     }
 
     @Test
@@ -100,21 +99,26 @@ public class SolverTests {
         }
 
         Assert.assertEquals(5, numberOfBoards);
+        Assert.assertEquals(4, solver.moves());
     }
 
-    @Test
-    public void test_UnsolveableBoard() {
-        Board board = createUnsolveableBoard();
-        Solver solver = new Solver(board);
-        Iterable<Board> solution = solver.solution();
-        Iterator<Board> iterator = solution.iterator();
-
-        int numberOfBoards = 0;
-        while (iterator.hasNext()) {
-            numberOfBoards++;
-        }
-        Assert.assertTrue(numberOfBoards > 0);
-    }
+//    @Test
+//    public void test_UnsolveableBoard() {
+//        Board board = createUnsolveableBoard();
+//        Solver solver = new Solver(board);
+//
+//        Assert.assertFalse(solver.isSolvable());
+//
+//
+////        Iterable<Board> solution = solver.solution();
+////        Iterator<Board> iterator = solution.iterator();
+////
+////        int numberOfBoards = 0;
+////        while (iterator.hasNext()) {
+////            numberOfBoards++;
+////        }
+////        Assert.assertTrue(numberOfBoards > 0);
+//    }
 
     private Board createUnsolveableBoard() {
         int dimen = 3;
