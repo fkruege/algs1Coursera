@@ -1,10 +1,8 @@
-import edu.princeton.cs.algs4.LinearProbingHashST;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Stack;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.Console;
 import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * Created by fkruege on 1/16/2017.
@@ -12,11 +10,18 @@ import java.util.Comparator;
 public class Solver {
     private Board _initialBoard;
     private SearchNode _solutionNode;
+    private boolean _isBoardSolveable = true;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
+
+        if (initial == null) {
+            throw new NullPointerException();
+        }
+
         _initialBoard = initial;
         _solutionNode = null;
+        _isBoardSolveable = true;
     }
 
     // is the initial board solvable?
@@ -26,35 +31,48 @@ public class Solver {
         SolveBoard solveInitialBoard = new SolveBoard(_initialBoard);
         SolveBoard solveTwinBoard = new SolveBoard(twin);
 
-        while (!solveInitialBoard.IsBoardSolved() && !solveTwinBoard.IsBoardSolved()) {
+        while (solveInitialBoard.nextStep() && solveTwinBoard.nextStep()) {
             solveInitialBoard.makeAMove();
             solveTwinBoard.makeAMove();
         }
 
-        return solveInitialBoard.IsBoardSolved();
+        if (solveInitialBoard.IsBoardSolved()) {
+            _solutionNode = solveInitialBoard.SolutionNode();
+            return true;
+        }
+
+        _isBoardSolveable = false;
+        return false;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        if (_solutionNode == null) {
-            solveProblem();
+
+        if (solveProblem()) {
+            return _solutionNode.Moves;
+        } else {
+            return -1;
         }
 
-        return _solutionNode.Moves;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
 
-        solveProblem();
-
-        if (_solutionNode == null) {
+        if (solveProblem()) {
+            return getIterableBoard(_solutionNode);
+        } else {
             return null;
         }
 
-        // iterate through the SearchNode history and return the steps to get to the solution
+
+    }
+
+
+    private Iterable<Board> getIterableBoard(SearchNode solutionNode) {
+        // iterate through the SearchNode _history and return the steps to get to the solution
         Stack<Board> stepsToSolution = new Stack<Board>();
-        SearchNode iterator = _solutionNode;
+        SearchNode iterator = solutionNode;
         while (iterator != null) {
             stepsToSolution.push(iterator.PuzzleBoard);
             iterator = iterator.PreviousSearchNode;
@@ -63,14 +81,31 @@ public class Solver {
         return stepsToSolution;
     }
 
-    private void solveProblem() {
+    private boolean solveProblem() {
 
+        // problem already solved
+        if (_solutionNode != null) {
+            return true;
+        }
+
+        // check if board is unsolveable
+        if (!_isBoardSolveable) {
+            return false;
+        }
+
+        // if we get here this is the first time trying to solve the board
         SolveBoard solveBoard = new SolveBoard(_initialBoard);
-        while (!solveBoard.IsBoardSolved()) {
+        while (solveBoard.nextStep()) {
             solveBoard.makeAMove();
         }
 
-        _solutionNode = solveBoard.SolutionNode();
+        if (solveBoard.IsBoardSolved()) {
+            _solutionNode = solveBoard.SolutionNode();
+            return true;
+        } else {
+            _isBoardSolveable = false;
+            return false;
+        }
 
     }
 
@@ -78,15 +113,46 @@ public class Solver {
     private static class SolveBoard {
 
         private boolean _isSolved = false;
+        private boolean _isBoardSolveable = true;
         private SearchNode _SolutionNode = null;
         private Board _board;
 
+        MinPQ<SearchNode> _minPQ;
+        HashMap<Integer, String> _history;
+        long _delMinCount = 0;
+
         public SolveBoard(Board board) {
             _board = board;
+            _minPQ = new MinPQ<SearchNode>(new ManhattanSearchNodeComparator());
+            _history = new HashMap<Integer, String>();
+            makeInitialMove();
+        }
+
+        private void makeInitialMove() {
+            SearchNode firstNode = new SearchNode(_board, 0, null);
+            _minPQ.insert(firstNode);
+        }
+
+        public boolean nextStep() {
+            if (_isSolved) {
+                return false;
+            }
+
+            if (!_isBoardSolveable) {
+                return false;
+            }
+
+            return true;
+
+
         }
 
         public boolean IsBoardSolved() {
             return _isSolved;
+        }
+
+        public boolean IsBoardSolveable() {
+            return _isBoardSolveable;
         }
 
         public SearchNode SolutionNode() {
@@ -95,42 +161,49 @@ public class Solver {
 
         public void makeAMove() {
 
-            MinPQ<SearchNode> minPQ = new MinPQ<SearchNode>(new ManhattanSearchNodeComparator());
+            if (_isSolved) {
+                return;
+            }
 
-            // insert the current board first
-            SearchNode firstNode = new SearchNode(_board, 0, null);
-            minPQ.insert(firstNode);
+            if (!_isSolved && _minPQ.isEmpty()) {
+                _isBoardSolveable = false;
+                return;
+            }
 
-            while (!_isSolved && !minPQ.isEmpty()) {
+            SearchNode minNode = _minPQ.delMin();
+            _delMinCount++;
+//            if (_delMinCount % 1000 == 0) {
+//                int priority = minNode.Moves + minNode.PuzzleBoard.manhattan();
+//                System.out.println("Delmin: " + _delMinCount + " Min Node.  Prior: " + priority
+//                        + "    Manhat: " + minNode.PuzzleBoard.manhattan()
+//                        + "  Hamm:" + minNode.PuzzleBoard.hamming()
+//                        + " minPq: " + _minPQ.size() + " map: " + _history.size()
+//                );
+//            }
 
-                SearchNode minNode = minPQ.delMin();
-
-                int priority = minNode.Moves + minNode.PuzzleBoard.manhattan();
-//                System.out.println("Min Node Dequeued.  Priority: " + priority + "    Manhattan: " + minNode.PuzzleBoard.manhattan() + "  Hamming:" + minNode.PuzzleBoard.hamming());
 //                System.out.println(minNode.PuzzleBoard.toString());
 
-                if (minNode.PuzzleBoard.isGoal()) {
-                    _SolutionNode = minNode;
-                    _isSolved = true;
-                    continue;
+            if (minNode.PuzzleBoard.isGoal()) {
+                _SolutionNode = minNode;
+                _isSolved = true;
+                return;
+            }
+
+            Iterable<Board> neighbors = minNode.PuzzleBoard.neighbors();
+            for (Board neighbor : neighbors) {
+
+                Integer key = new Integer(neighbor.toString().hashCode());
+
+                if (!_history.containsKey(key)) {
+                    _history.put(key, neighbor.toString());
+
+                    SearchNode possibleStep = new SearchNode(neighbor, minNode.Moves + 1, minNode);
+                    _minPQ.insert(possibleStep);
+
                 }
-                Iterable<Board> neighbors = minNode.PuzzleBoard.neighbors();
-                int index = 0;
-                for (Board neighbor : neighbors) {
-                    index++;
-//                    System.out.println("Inserting Neighbor " + index + ":   Manhattan: " + neighbor.manhattan() + "  Hamming:" + neighbor.hamming());
-//                    System.out.println(neighbor.toString());
 
-                    if (!IsBoardSameAsPrevious(neighbor, minNode.PreviousSearchNode)) {
-
-                        SearchNode possibleStep = new SearchNode(neighbor, minNode.Moves + 1, minNode);
-                        minPQ.insert(possibleStep);
-                    }
-
-                }
             }
         }
-
 
         private boolean IsBoardSameAsPrevious(Board current, SearchNode previous) {
             SearchNode iterator = previous;
@@ -181,30 +254,23 @@ public class Solver {
                 return -1;
             }
 
-            if(manhattan1 > manhattan2){
+            if (manhattan1 > manhattan2) {
                 return 1;
-            }else if(manhattan1 < manhattan2){
+            } else if (manhattan1 < manhattan2) {
                 return -1;
             }
 
             int hamming1 = node1.PuzzleBoard.hamming();
             int hamming2 = node2.PuzzleBoard.hamming();
 
-            if(hamming1 > hamming2){
+            if (hamming1 > hamming2) {
                 return 1;
-            }else if(hamming1 < hamming2){
+            } else if (hamming1 < hamming2) {
                 return -1;
             }
 
             return 0;
 //
-//            int compare = Integer.compare(priority1, priority2);
-//
-//            if (compare == 0) {
-//                return Integer.compare(node1.PuzzleBoard.manhattan(), node2.PuzzleBoard.manhattan());
-//            } else {
-//                return compare;
-//            }
         }
 
     }

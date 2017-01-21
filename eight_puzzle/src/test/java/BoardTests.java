@@ -46,9 +46,14 @@ public class BoardTests {
 
     @Test
     public void test_isGoal() {
+
         Assert.assertFalse(_board.isGoal());
         setGoalBoard();
-        Assert.assertTrue(_board.isGoal());
+
+        Board boardGoal = new Board(_input);
+
+        Assert.assertTrue(boardGoal.isGoal());
+
     }
 
     @Test
@@ -69,11 +74,11 @@ public class BoardTests {
         Board boardB = new Board(_input);
 
         Assert.assertEquals(boardA, boardB);
-        Assert.assertEquals(boardA.hashCode(), boardB.hashCode());
+        Assert.assertEquals(boardA.toString().hashCode(), boardB.toString().hashCode());
 
         Board boardC = boardA.twin();
         Assert.assertNotEquals(boardA, boardC);
-        Assert.assertNotEquals(boardA.hashCode(), boardC.hashCode());
+        Assert.assertNotEquals(boardA.toString().hashCode(), boardC.toString().hashCode());
     }
 
     @Test

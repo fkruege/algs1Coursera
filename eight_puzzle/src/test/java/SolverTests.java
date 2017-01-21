@@ -107,6 +107,38 @@ public class SolverTests {
 //        Board board = createUnsolveableBoard();
 //        Solver solver = new Solver(board);
 //
+//        solver.moves();
+//
+//        Assert.assertFalse(solver.isSolvable());
+//
+//
+//    }
+
+
+
+    @Test
+    public void test_UnsolveableBoard() {
+        Board board = createUnsolveableBoard();
+        Solver solver = new Solver(board);
+
+        Assert.assertFalse(solver.isSolvable());
+
+
+//        Iterable<Board> solution = solver.solution();
+//        Iterator<Board> iterator = solution.iterator();
+//
+//        int numberOfBoards = 0;
+//        while (iterator.hasNext()) {
+//            numberOfBoards++;
+//        }
+//        Assert.assertTrue(numberOfBoards > 0);
+    }
+
+//    @Test
+//    public void test_UnsolveableBoard() {
+//        Board board = createUnsolveableBoard();
+//        Solver solver = new Solver(board);
+//
 //        Assert.assertFalse(solver.isSolvable());
 //
 //

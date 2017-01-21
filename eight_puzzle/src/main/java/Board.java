@@ -8,10 +8,17 @@ public class Board {
     private static final int EMPTY = 0;
 
     private int[][] _blocks;
+    private int _manhattan = -1;
+    private int _hamming = -1;
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
+
+        if(blocks == null){
+            throw new NullPointerException();
+        }
+
         _blocks = blocks;
     }
 
@@ -23,39 +30,47 @@ public class Board {
 
     // number of blocks out of place
     public int hamming() {
-        int hamming = 0;
+        if (_hamming == -1) {
+            int hamming = 0;
 
-        for (int i = 0; i < _blocks.length; i++) {
-            for (int j = 0; j < _blocks.length; j++) {
-                int expectedValue = (i * _blocks.length) + j + 1;
-                int currentValue = _blocks[i][j];
-                if (currentValue != EMPTY && currentValue != expectedValue) {
-                    hamming++;
+            for (int i = 0; i < _blocks.length; i++) {
+                for (int j = 0; j < _blocks.length; j++) {
+                    int expectedValue = (i * _blocks.length) + j + 1;
+                    int currentValue = _blocks[i][j];
+                    if (currentValue != EMPTY && currentValue != expectedValue) {
+                        hamming++;
+                    }
                 }
             }
+
+            _hamming = hamming;
         }
-        return hamming;
+        return _hamming;
     }
 
     // sum of Manhattan distances between blocks and goal
     public int manhattan() {
-        int manhattan = 0;
+        if (_manhattan == -1) {
+            int manhattan = 0;
 
-        for (int i = 0; i < _blocks.length; i++) {
-            for (int j = 0; j < _blocks.length; j++) {
-                int value = _blocks[i][j];
-                if (value == EMPTY) {
-                    continue;
+            for (int i = 0; i < _blocks.length; i++) {
+                for (int j = 0; j < _blocks.length; j++) {
+                    int value = _blocks[i][j];
+                    if (value == EMPTY) {
+                        continue;
+                    }
+                    int expectedJ = getExpectedJ(value);
+                    int expectedI = (value - expectedJ - 1) / _blocks.length;
+
+                    int distance = Math.abs(expectedI - i) + Math.abs(expectedJ - j);
+                    manhattan += distance;
                 }
-                int expectedJ = getExpectedJ(value);
-                int expectedI = (value - expectedJ - 1) / _blocks.length;
-
-                int distance = Math.abs(expectedI - i) + Math.abs(expectedJ - j);
-                manhattan += distance;
             }
+
+            _manhattan = manhattan;
         }
 
-        return manhattan;
+        return _manhattan;
     }
 
 
@@ -133,21 +148,21 @@ public class Board {
 
         return true;
     }
-
-    /**
-     * @return an integer hash code for this Board
-     */
-    @Override
-    public int hashCode() {
-        int dimen = _blocks.length;
-        int hash = 17;
-        for (int i = 0; i < dimen; i++) {
-            for (int j = 0; j < dimen; j++) {
-                hash = 31 * hash + _blocks[i][j];
-            }
-        }
-        return hash;
-    }
+//
+//    /**
+//     * @return an integer hash code for this Board
+//     */
+//    @Override
+//    public int hashCode() {
+//        int dimen = _blocks.length;
+//        int hash = 17;
+//        for (int i = 0; i < dimen; i++) {
+//            for (int j = 0; j < dimen; j++) {
+//                hash = 31 * hash + _blocks[i][j];
+//            }
+//        }
+//        return hash;
+//    }
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
