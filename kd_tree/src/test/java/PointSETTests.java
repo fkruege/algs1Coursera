@@ -1,0 +1,50 @@
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.Stack;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * Created by fkruege on 1/29/17.
+ */
+public class PointSETTests {
+
+    PointSET _pointSet;
+    private RectHV _rectangle;
+    private Point2D _testPt1;
+    private Point2D _testPt2;
+    private Point2D _testPt3;
+
+    @Before
+    public void before() {
+        _pointSet = new PointSET();
+
+
+        _rectangle = new RectHV(0.3, 0.3, 0.7, 0.7);
+
+        _testPt1 = new Point2D(0.4, 0.4);
+        _testPt2 = new Point2D(0.5, 0.5);
+        _testPt3 = new Point2D(0.6, 0.6);
+
+        _pointSet.insert(_testPt1);
+        _pointSet.insert(_testPt2);
+        _pointSet.insert(_testPt3);
+    }
+
+    @Test
+    public void test_range1() {
+        Stack<Point2D> range = (Stack<Point2D>) _pointSet.range(_rectangle);
+        Assert.assertEquals(3, range.size());
+        Assert.assertTrue(range.pop().equals(_testPt3));
+        Assert.assertTrue(range.pop().equals(_testPt2));
+        Assert.assertTrue(range.pop().equals(_testPt1));
+    }
+
+    @Test
+    public void test_range2() {
+        _rectangle = new RectHV(0.1, 0.1, 0.2, 0.2);
+        Stack<Point2D> range = (Stack<Point2D>) _pointSet.range(_rectangle);
+        Assert.assertEquals(0, range.size());
+    }
+}
