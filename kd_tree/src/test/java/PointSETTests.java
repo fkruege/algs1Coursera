@@ -18,6 +18,9 @@ public class PointSETTests {
 
     @Before
     public void before() {
+
+
+
         _pointSet = new PointSET();
 
 
@@ -47,4 +50,38 @@ public class PointSETTests {
         Stack<Point2D> range = (Stack<Point2D>) _pointSet.range(_rectangle);
         Assert.assertEquals(0, range.size());
     }
+
+    @Test
+    public void test_nearest1() {
+        Point2D nearest = _pointSet.nearest(new Point2D(0.1, 0.1));
+        Assert.assertTrue(nearest.equals(_testPt1));
+    }
+
+    @Test
+    public void test_nearest2() {
+        Point2D nearest = _pointSet.nearest(new Point2D(0.7, 0.7));
+        Assert.assertTrue(nearest.equals(_testPt3));
+    }
+
+     @Test
+    public void test_nearest3() {
+        PointSET emptyPointSet = new PointSET();
+        Point2D nearest = emptyPointSet.nearest(new Point2D(0.7, 0.7));
+        Assert.assertNull(nearest);
+    }
+
+    @Test
+    public void test_nearest4() {
+        Point2D nearest = _pointSet.nearest(new Point2D(0.41, 0.41));
+        Assert.assertTrue(nearest.equals(_testPt1));
+    }
+
+
+    @Test
+    public void test_nearest5() {
+        Point2D nearest = _pointSet.nearest(new Point2D(0.46, 0.46));
+        Assert.assertTrue(nearest.equals(_testPt2));
+    }
+
+
 }
