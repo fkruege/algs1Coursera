@@ -172,14 +172,14 @@ public class Solver {
 
             SearchNode minNode = _minPQ.delMin();
             _delMinCount++;
-//            if (_delMinCount % 1000 == 0) {
-//                int priority = minNode.Moves + minNode.PuzzleBoard.manhattan();
-//                System.out.println("Delmin: " + _delMinCount + " Min Node.  Prior: " + priority
-//                        + "    Manhat: " + minNode.PuzzleBoard.manhattan()
-//                        + "  Hamm:" + minNode.PuzzleBoard.hamming()
-//                        + " minPq: " + _minPQ.size() + " map: " + _history.size()
-//                );
-//            }
+            if (_delMinCount % 1000 == 0) {
+                int priority = minNode.Moves + minNode.PuzzleBoard.manhattan();
+                System.out.println("Delmin: " + _delMinCount + " Min Node.  Prior: " + priority
+                        + "    Manhat: " + minNode.PuzzleBoard.manhattan()
+                        + "  Hamm:" + minNode.PuzzleBoard.hamming()
+                        + " minPq: " + _minPQ.size() + " map: " + _history.size()
+                );
+            }
 
 //                System.out.println(minNode.PuzzleBoard.toString());
 

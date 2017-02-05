@@ -1,11 +1,9 @@
 
-import edu.princeton.cs.algs4.DoublingRatio;
-import edu.princeton.cs.algs4.Point2D;
-import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.*;
 
 import java.util.NoSuchElementException;
 
-public class KdTree<Key extends Comparable<Key>, Value> {
+public class KdTree {
     private Node root;             // root of BST
     private int _size = 0;
 
@@ -98,8 +96,13 @@ public class KdTree<Key extends Comparable<Key>, Value> {
         if (x == null) return null;
         int cmp = compare(key, x.point, xAxis);
         if (cmp < 0) return get(x.left, key, !xAxis);
-        else if (cmp > 0) return get(x.right, key, !xAxis);
-        else return x.point;
+        else {
+            if (key.equals(x.point)) {
+                return x.point;
+            }
+            return get(x.right, key, !xAxis);
+        }
+//        else return x.point;
     }
 
     /**
@@ -123,24 +126,150 @@ public class KdTree<Key extends Comparable<Key>, Value> {
         root = put(root, point, true, new Boundaries());
     }
 
+
+    // all points that are inside the rectangle
+    public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null) {
+            throw new NullPointerException();
+        }
+
+        Point2D bottomLeft = new Point2D(rect.xmin(), rect.ymin());
+        Point2D topRight = new Point2D(rect.xmax(), rect.ymax());
+
+        Stack<Point2D> pointsInRect = new Stack<Point2D>();
+
+        findPointsInRect(root, bottomLeft, topRight, true, pointsInRect);
+
+        return pointsInRect;
+    }
+
+
+    // a nearest neighbor in the set to point p; null if the set is empty
+    public Point2D nearest(Point2D p) {
+
+        if (p == null) {
+            throw new NullPointerException();
+        }
+
+        if (_size <= 0) {
+            return null;
+        }
+
+        Point2D maxPoint = new Point2D(Double.MAX_VALUE, Double.MAX_VALUE);
+        RectHV searchRectangle = new RectHV(0.0, 0.0, 1.0, 1.0);
+
+        return findNearest(p, maxPoint, root, searchRectangle, true);
+
+//        return findNearest(root, p, Double.MAX_VALUE, true);
+    }
+
+    private Point2D findNearest(Point2D goalPoint, Point2D currentNearest, Node node,
+                                RectHV searchRectangle, boolean xAxis) {
+        if (node == null) {
+            return currentNearest;
+        }
+
+        if(!searchRectangle.contains(goalPoint)){
+           return currentNearest;
+        }
+
+        Point2D nodePoint = node.point;
+        double currentNearestDistance = currentNearest.distanceSquaredTo(goalPoint);
+        double nodePointDistance = nodePoint.distanceSquaredTo(goalPoint);
+
+        if (nodePointDistance < currentNearestDistance) {
+            currentNearestDistance = nodePointDistance;
+            currentNearest = nodePoint;
+        }
+
+
+        Point2D leftNearest = null;
+        Point2D rightNearest = null;
+        leftNearest = findNearest(goalPoint, currentNearest, node.left, !xAxis);
+
+        // check to see if the right subtree needs to be traversed
+//        if (node.right != null) {
+//            if()
+//            double rightDistance = node.right.point.distanceSquaredTo(goalPoint);
+//            if (rightDistance < currentNearestDistance) {
+                rightNearest = findNearest(goalPoint, currentNearest, node.right, !xAxis);
+//            }
+//        }
+
+        double leftNearestDistance = Double.MAX_VALUE;
+        double rightNearestDistance = Double.MAX_VALUE;
+
+        if (leftNearest != null) {
+            leftNearestDistance = leftNearest.distanceSquaredTo(goalPoint);
+        }
+
+        if (rightNearest != null) {
+            rightNearestDistance = rightNearest.distanceSquaredTo(goalPoint);
+        }
+
+        if (leftNearestDistance < currentNearestDistance && leftNearestDistance < rightNearestDistance) {
+            currentNearest = leftNearest;
+        } else if (rightNearestDistance < currentNearestDistance && rightNearestDistance < leftNearestDistance) {
+            currentNearest = rightNearest;
+        }
+
+        return currentNearest;
+    }
+
+    private void findPointsInRect(Node node, Point2D bottomLeft, Point2D topRight, boolean xAxis, Stack<Point2D> pointsInRect) {
+
+        if (node == null) {
+            return;
+        }
+
+        Point2D nodePoint = node.point;
+
+        // check that the X coordinate of the point is between the rectangle bounds
+        if (Double.compare(nodePoint.x(), bottomLeft.x()) >= 0
+                &&
+                Double.compare(nodePoint.x(), topRight.x()) <= 0
+                &&
+                Double.compare(nodePoint.y(), bottomLeft.y()) >= 0
+                &&
+                Double.compare(nodePoint.y(), topRight.y()) <= 0
+                ) {
+
+            pointsInRect.push(nodePoint);
+        }
+
+        if (compare(nodePoint, bottomLeft, xAxis) >= 0 && compare(nodePoint, topRight, xAxis) <= 0) {
+            findPointsInRect(node.left, bottomLeft, topRight, !xAxis, pointsInRect);
+            findPointsInRect(node.right, bottomLeft, topRight, !xAxis, pointsInRect);
+        } else if (compare(nodePoint, bottomLeft, xAxis) > 0 && compare(nodePoint, topRight, xAxis) > 0) {
+            findPointsInRect(node.left, bottomLeft, topRight, !xAxis, pointsInRect);
+        } else {
+            findPointsInRect(node.right, bottomLeft, topRight, !xAxis, pointsInRect);
+        }
+
+
+    }
+
+
     private Node put(Node x, Point2D point, boolean xAxis, Boundaries boundaries) {
         if (x == null) {
             _size++;
             return new Node(point, xAxis, boundaries);
         }
 
+
         int cmp = compare(point, x.point, xAxis);
 
         if (cmp < 0) {
-            boundaries.MaxX = x.point.x();
-            boundaries.MaxY = x.point.y();
+            boundaries.MaxX = x.rect.xmax();
+            boundaries.MaxY = x.rect.ymax();
             x.left = put(x.left, point, !xAxis, boundaries);
-        } else if (cmp > 0) {
-            boundaries.MinX = x.point.x();
-            boundaries.MinY = x.point.y();
-            x.right = put(x.right, point, !xAxis, boundaries);
-        } else {
-            x.point = point;
+        } else if (cmp >= 0) {
+            if (!point.equals(x.point)) {
+                boundaries.MinX = x.rect.xmin();
+                boundaries.MinY = x.rect.ymin();
+                x.right = put(x.right, point, !xAxis, boundaries);
+            }
+
         }
 
         return x;
@@ -157,6 +286,44 @@ public class KdTree<Key extends Comparable<Key>, Value> {
         }
 
         return cmp;
+    }
+
+
+    // draw all points to standard draw
+    public void draw() {
+        Iterable<Node> nodePoints = levelOrder();
+
+        for (Node node :
+                nodePoints) {
+            StdDraw.point(node.point.x(), node.point.y());
+            StdDraw.line(
+                    node.rect.xmin(),
+                    node.rect.ymin(),
+                    node.rect.xmax(),
+                    node.rect.ymax()
+            );
+
+        }
+    }
+
+
+    /**
+     * Returns the keys in the BST in level order (for debugging).
+     *
+     * @return the keys in the BST in level order traversal
+     */
+    private Iterable<Node> levelOrder() {
+        Queue<Node> keys = new Queue<Node>();
+        Queue<Node> queue = new Queue<Node>();
+        queue.enqueue(root);
+        while (!queue.isEmpty()) {
+            Node x = queue.dequeue();
+            if (x == null) continue;
+            keys.enqueue(x);
+            queue.enqueue(x.left);
+            queue.enqueue(x.right);
+        }
+        return keys;
     }
 
 

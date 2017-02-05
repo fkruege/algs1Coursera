@@ -50,5 +50,8 @@ public class PuzzleChecker {
             Solver solver = new Solver(initial);
             StdOut.println(filename + ": " + solver.moves());
         }
+
+
     }
+
 }
