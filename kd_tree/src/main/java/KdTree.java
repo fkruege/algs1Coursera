@@ -185,14 +185,25 @@ public class KdTree {
 
         Point2D leftNearest = null;
         Point2D rightNearest = null;
-        leftNearest = findNearest(goalPoint, currentNearest, node.left, !xAxis);
+
+        int compare = compare(nodePoint, goalPoint, xAxis);
+
+//        if(compare > 0){
+            // search the left
+            leftNearest = findNearest(goalPoint, currentNearest, node.left, searchRectangle, !xAxis);
+//        }else{
+            // search the right
+//            RectHV rightRectangle = new RectHV(node.rect.xmin(),node.rect.ymin(),
+//                                               node.rect)
+            rightNearest = findNearest(goalPoint, currentNearest, node.right,searchRectangle, !xAxis);
+//        }
+
 
         // check to see if the right subtree needs to be traversed
 //        if (node.right != null) {
 //            if()
 //            double rightDistance = node.right.point.distanceSquaredTo(goalPoint);
 //            if (rightDistance < currentNearestDistance) {
-                rightNearest = findNearest(goalPoint, currentNearest, node.right, !xAxis);
 //            }
 //        }
 
